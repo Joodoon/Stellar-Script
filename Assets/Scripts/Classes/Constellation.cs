@@ -45,8 +45,8 @@ public class Up : Constellation
         name = "Up";
         pattern = new ArrayList
         {
-            Direction.Up,
-            Direction.Up
+            Direction.RightUp,
+            Direction.RightDown
         };
     }
 
@@ -57,7 +57,29 @@ public class Up : Constellation
 
     public override void Scry()
     {
-        spellscryStack.Add(new Spellscry(new Vector2(0, 1) * 100));
+        spellscryStack.Add(new Spellscry(new Vector2(0, 1)));
+    }
+}
+
+public class Right : Constellation
+{
+    public Right() : base() {
+        name = "Right";
+        pattern = new ArrayList
+        {
+            Direction.RightDown,
+            Direction.LeftDown
+        };
+    }
+
+    public override void Cast()
+    {
+        Debug.Log("Right: Cast");
+    }
+
+    public override void Scry()
+    {
+        spellscryStack.Add(new Spellscry(new Vector2(1, 0)));
     }
 }
 
@@ -93,7 +115,7 @@ public class Force : Constellation
         else{
             Debug.Log("Force: Cast");
             Rigidbody2D rb = obj.GetComponent<Rigidbody2D>();
-            rb.AddForce((Vector2)vector);
+            rb.AddForce((Vector2)vector * 100, ForceMode2D.Impulse);
 
             spellscryStack.RemoveAt(spellscryStack.Count - 1);
             spellscryStack.RemoveAt(spellscryStack.Count - 1);

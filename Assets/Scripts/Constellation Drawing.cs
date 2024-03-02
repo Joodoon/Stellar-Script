@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
@@ -6,10 +7,9 @@ using UnityEngine;
 public class ConstellationDrawing : MonoBehaviour
 {
     private List<Star> stars;
-    private List<List<Star>> constellations;
+    public static ArrayList drawnConstellations;
+    private DrawnGlyph currentGlyph;
     private StarGrid starGrid;
-
-    LineRenderer lineRenderer;
 
     SpellStack spellStack;
 
@@ -18,21 +18,16 @@ public class ConstellationDrawing : MonoBehaviour
     private void Start()
     {
         stars = new List<Star>();
-        constellations = new List<List<Star>>();
+        drawnConstellations = new ArrayList();
         starGrid = GetComponent<StarGrid>();
         spellStack = GetComponent<SpellStack>();
-
-        lineRenderer = gameObject.AddComponent<LineRenderer>();
-        lineRenderer.startWidth = 0.1f;
-        lineRenderer.endWidth = 0.1f;
     }
 
     private void Update()
     {
-        foreach (Star star in stars)
+        foreach (DrawnGlyph glyph in drawnConstellations)
         {
-            lineRenderer.positionCount = stars.Count;
-            lineRenderer.SetPosition(stars.IndexOf(star), star.worldPos);
+            glyph.updateLine();
         }
 
         Vector2 mousePos = GetMouseGridPosition();
@@ -40,8 +35,13 @@ public class ConstellationDrawing : MonoBehaviour
         if (Input.GetMouseButton(0) && IsWithinGridBounds(mousePos)) {
             Star star = starGrid.GetStarAtPosition(mousePos);
 
+            if(stars.Count == 0){
+                currentGlyph = new DrawnGlyph();
+                drawnConstellations.Add(currentGlyph);
+            }
+
             if (star != null) {
-                if (!star.selected && (stars.Count == 0 || star != stars[stars.Count - 1])) {
+                if (!star.selected && (stars.Count == 0 || (star != stars[stars.Count - 1] && (starGrid.GetDistBetweenStars(star, stars[stars.Count - 1]).x <= 1 && starGrid.GetDistBetweenStars(star, stars[stars.Count - 1]).y <= 1)))) {
                     AddStarToConstellation(star);
                 }
                 else if (star.lastSelected && stars.Count >= 1) {
@@ -54,13 +54,16 @@ public class ConstellationDrawing : MonoBehaviour
             if (stars.Count >= 1) {
                 CompleteConstellation();
             }
-            stars.Clear();
         }
     }
-
     private Vector2 GetMouseGridPosition() {
-        return new Vector2(StarGrid.gridComponent.WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition)).x,
-                           StarGrid.gridComponent.WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition)).y);
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity)) {
+            Vector2 worldPos = hit.point;
+            return new Vector2(StarGrid.gridComponent.WorldToCell(worldPos).x,
+                            StarGrid.gridComponent.WorldToCell(worldPos).y);
+        }
+        return Vector2.zero;
     }
 
     private bool IsWithinGridBounds(Vector2 position) {
@@ -78,6 +81,7 @@ public class ConstellationDrawing : MonoBehaviour
         }
 
         stars.Add(star);
+        currentGlyph.stars = new List<Star>(stars);
     }
 
     private void RemoveStarFromConstellation(Star star) {
@@ -87,35 +91,36 @@ public class ConstellationDrawing : MonoBehaviour
             stars[stars.Count - 1].lastSelected = false;
             stars.RemoveAt(stars.Count - 1);
             stars[stars.Count - 1].lastSelected = true;
+
+            currentGlyph.stars = new List<Star>(stars);
         }
         else if (stars.Count == 1){
             stars[0].selected = false;
             stars[0].lastSelected = false;
             stars.RemoveAt(0);
+
+            currentGlyph.stars = new List<Star>(stars);
+
             CompleteConstellation();
         }
     }
 
     private void CompleteConstellation()
     {
-        if(stars.Count >= 1){
-            constellations.Add(new List<Star>(stars));
+        bool validConstellationFound = false;
 
+        if(stars.Count >= 1){
             List<Direction> directions = new List<Direction>();
             for (int i = 0; i < stars.Count - 1; i++) {
                 directions.Add(starGrid.indexToPattern(stars[i].arrayPos, stars[i + 1].arrayPos));
-                Debug.Log(stars[i].arrayPos + " " + stars[i + 1].arrayPos);
-            }
+            } 
+
+            currentGlyph.directions = new List<Direction>(directions);
 
             // check if the constellation is a valid pattern
             foreach (Constellation constellation in starGrid.constellationPatterns) {
-                if (constellation.pattern.Count == directions.Count) {
-                    bool valid = true;
-
-                    // debug.log the directions of both the constellation and the drawn pattern
-                    Debug.Log(constellation.name + " " + constellation.pattern.ToCommaSeparatedString());
-                    Debug.Log("directions " + directions.ToCommaSeparatedString());
-
+                bool valid = true;
+                if (constellation.pattern.Count == directions.Count) {   
                     for (int i = 0; i < constellation.pattern.Count; i++) {
                         if ((Direction)constellation.pattern[i] != directions[i]) {
                             valid = false;
@@ -123,11 +128,19 @@ public class ConstellationDrawing : MonoBehaviour
                         }
                     }
                     if (valid) {
+                        validConstellationFound = true;
                         constellation.Scry();
                         spellStack.constellations.Add(constellation);
                         textMeshPro.text = spellStack.constellations.ToCommaSeparatedString();
+                        break;
                     }
                 }
+            }
+
+            if (!validConstellationFound) {
+                currentGlyph.stars.Clear();
+                currentGlyph.updateLine();
+                drawnConstellations.Remove(currentGlyph);
             }
 
             foreach (Star star in stars)
@@ -135,6 +148,8 @@ public class ConstellationDrawing : MonoBehaviour
                 star.selected = false;
                 star.lastSelected = false;
             }
+
+            stars.Clear();
         }
     }
 }

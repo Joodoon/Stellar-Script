@@ -12,6 +12,9 @@ public class StarGrid : MonoBehaviour
     [SerializeField] public Vector2 gridDimensions;
     [SerializeField] public GameObject starPrefab;
     [SerializeField] public static Grid gridComponent;
+    [SerializeField] public GameObject starPlane;
+
+    Vector2 totalGridWorldSize;
 
     public Star[,] grid;
     public ArrayList stars;
@@ -32,6 +35,8 @@ public class StarGrid : MonoBehaviour
 
         createGrid();
         drawGrid();
+
+        totalGridWorldSize = new Vector2(gridDimensions.x * gridComponent.cellSize.x, gridDimensions.y * gridComponent.cellSize.y * .75f);
     }
 
     void createGrid(){
@@ -46,7 +51,7 @@ public class StarGrid : MonoBehaviour
     void drawGrid(){
         for(int x = 0; x < gridDimensions.x; x++){
             for(int y = 0; y < gridDimensions.y; y++){
-                GameObject star = Instantiate(starPrefab, grid[x, y].worldPos, Quaternion.identity);
+                GameObject star = Instantiate(starPrefab, grid[x, y].worldPos, Quaternion.identity, starPlane.transform);
                 stars.Add(star);
             }
         }
@@ -57,6 +62,7 @@ public class StarGrid : MonoBehaviour
         {
             new Self(),
             new Up(),
+            new Right(),
             new Force()
         };
     }
@@ -95,11 +101,18 @@ public class StarGrid : MonoBehaviour
         return null;
     }
 
+    public Vector2 GetDistBetweenStars(Star star1, Star star2){
+        return new Vector2(Math.Abs(star1.arrayPos.x - star2.arrayPos.x), Math.Abs(star1.arrayPos.y - star2.arrayPos.y));
+    }
+
     void Update(){
-        // change colour of only the last selected star
-        // iterate through all stars and change the colour of the last selected star
+        gridComponent.transform.position = new Vector3(starPlane.transform.position.x - totalGridWorldSize.y/2, starPlane.transform.position.y - totalGridWorldSize.x/2, 0f);
+        //gridComponent.transform.position = starPlane.transform.position;
+
         for(int i = 0; i < stars.Count; i++){
             Star star = grid[(int)(i / gridDimensions.y), i % (int)gridDimensions.y];
+            star.updatePosition();
+            ((GameObject)stars[i]).transform.position = star.worldPosOffset;
             if(star.lastSelected){
                 ((GameObject)stars[i]).GetComponent<SpriteRenderer>().color = Color.red;
             }
