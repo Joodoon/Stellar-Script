@@ -15,6 +15,7 @@ public class DrawnGlyph
         lineRenderer = new GameObject("Line Renderer").AddComponent<LineRenderer>();
         lineRenderer.startWidth = 0.1f;
         lineRenderer.endWidth = 0.1f;
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
     }
 
     public void updateLine()

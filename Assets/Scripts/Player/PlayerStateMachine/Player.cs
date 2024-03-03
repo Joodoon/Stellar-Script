@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -28,6 +29,7 @@ public class Player : MonoBehaviour
 
     [SerializeField]
     private Transform groundCheck;
+    public StarGrid StarGrid;
 
     #endregion
 
@@ -36,6 +38,8 @@ public class Player : MonoBehaviour
     public int FacingDirection { get; private set; }
 
     private Vector2 workspace;
+
+    public bool isCasting;
     #endregion
 
     #region Unity Callback Functions
@@ -65,6 +69,22 @@ public class Player : MonoBehaviour
     {
         CurrentVelocity = RB.velocity;
         StateMachine.CurrentState.LogicUpdate();
+
+        isCasting = InputHandler.castInput;
+
+        if(isCasting){
+            Time.timeScale = 0.1f;
+
+            foreach(Image star in StarGrid.stars){
+                star.color = new Color(star.color.r, star.color.g, star.color.b, 1f);
+            }
+        }
+        else{
+            Time.timeScale = 1f;
+            foreach(Image star in StarGrid.stars){
+                star.color = new Color(star.color.r, star.color.g, star.color.b, 0f);
+            }
+        }
     }
 
     private void FixedUpdate()

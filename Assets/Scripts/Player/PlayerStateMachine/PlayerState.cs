@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerState
 {
@@ -13,6 +14,8 @@ public class PlayerState
     protected float startTime;
 
     private string animBoolName;
+
+    public bool isCasting;
 
     public PlayerState(Player player, PlayerStateMachine stateMachine, PlayerData playerData, string animBoolName)
     {
@@ -38,7 +41,23 @@ public class PlayerState
         //player.Anim.SetBool(animBoolName, false);
     }
 
-    public virtual void LogicUpdate() { }
+    public virtual void LogicUpdate() { 
+        isCasting = player.InputHandler.castInput;
+
+        if(isCasting){
+            Time.timeScale = 0.1f;
+
+            foreach(Image star in player.StarGrid.stars){
+                star.color = new Color(star.color.r, star.color.g, star.color.b, 1f);
+            }
+        }
+        else{
+            Time.timeScale = 1f;
+            foreach(Image star in player.StarGrid.stars){
+                star.color = new Color(star.color.r, star.color.g, star.color.b, 0f);
+            }
+        }
+    }
 
     public virtual void PhysicsUpdate()
     {

@@ -11,6 +11,8 @@ public class ConstellationDrawing : MonoBehaviour
     private DrawnGlyph currentGlyph;
     private StarGrid starGrid;
 
+    [SerializeField] Player player;
+
     SpellStack spellStack;
 
     public TextMeshProUGUI textMeshPro;
@@ -30,29 +32,31 @@ public class ConstellationDrawing : MonoBehaviour
             glyph.updateLine();
         }
 
-        Vector2 mousePos = GetMouseGridPosition();
+        if(player.isCasting){
+            Vector2 mousePos = GetMouseGridPosition();
 
-        if (Input.GetMouseButton(0) && IsWithinGridBounds(mousePos)) {
-            Star star = starGrid.GetStarAtPosition(mousePos);
+            if (Input.GetMouseButton(0) && IsWithinGridBounds(mousePos)) {
+                Star star = starGrid.GetStarAtPosition(mousePos);
 
-            if(stars.Count == 0){
-                currentGlyph = new DrawnGlyph();
-                drawnConstellations.Add(currentGlyph);
+                if(stars.Count == 0){
+                    currentGlyph = new DrawnGlyph();
+                    drawnConstellations.Add(currentGlyph);
+                }
+
+                if (star != null) {
+                    if (!star.selected && (stars.Count == 0 || (star != stars[stars.Count - 1] && (starGrid.GetDistBetweenStars(star, stars[stars.Count - 1]).x <= 1 && starGrid.GetDistBetweenStars(star, stars[stars.Count - 1]).y <= 1)))) {
+                        AddStarToConstellation(star);
+                    }
+                    else if (star.lastSelected && stars.Count >= 1) {
+                        RemoveStarFromConstellation(star);
+                    }
+                }
             }
 
-            if (star != null) {
-                if (!star.selected && (stars.Count == 0 || (star != stars[stars.Count - 1] && (starGrid.GetDistBetweenStars(star, stars[stars.Count - 1]).x <= 1 && starGrid.GetDistBetweenStars(star, stars[stars.Count - 1]).y <= 1)))) {
-                    AddStarToConstellation(star);
+            if (Input.GetMouseButtonUp(0)) {
+                if (stars.Count >= 1) {
+                    CompleteConstellation();
                 }
-                else if (star.lastSelected && stars.Count >= 1) {
-                    RemoveStarFromConstellation(star);
-                }
-            }
-        }
-
-        if (Input.GetMouseButtonUp(0)) {
-            if (stars.Count >= 1) {
-                CompleteConstellation();
             }
         }
     }

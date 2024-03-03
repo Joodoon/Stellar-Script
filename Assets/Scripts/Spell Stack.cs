@@ -7,6 +7,7 @@ public class SpellStack : MonoBehaviour
 {
     [SerializeField] public ArrayList constellations;
     [SerializeField] public TextMeshProUGUI textMeshPro;
+    [SerializeField] public Player player;
 
     void Start()
     {
@@ -15,7 +16,7 @@ public class SpellStack : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetMouseButtonDown(0) && !player.isCasting)
         { 
             foreach (DrawnGlyph glyph in ConstellationDrawing.drawnConstellations)
             {

@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Collections;
 using System;
+using UnityEngine.UI;
 
 public enum Direction{
     Up, Down, RightUp, RightDown, LeftUp, LeftDown, NullDir
@@ -10,9 +11,10 @@ public enum Direction{
 public class StarGrid : MonoBehaviour
 {
     [SerializeField] public Vector2 gridDimensions;
-    [SerializeField] public GameObject starPrefab;
+    [SerializeField] public Image starPrefab;
     [SerializeField] public static Grid gridComponent;
     [SerializeField] public GameObject starPlane;
+    [SerializeField] public GameObject starCanvas;
 
     Vector2 totalGridWorldSize;
 
@@ -51,7 +53,7 @@ public class StarGrid : MonoBehaviour
     void drawGrid(){
         for(int x = 0; x < gridDimensions.x; x++){
             for(int y = 0; y < gridDimensions.y; y++){
-                GameObject star = Instantiate(starPrefab, grid[x, y].worldPos, Quaternion.identity, starPlane.transform);
+                Image star = Instantiate(starPrefab, new Vector2(Camera.main.WorldToViewportPoint(grid[x, y].worldPos).x, Camera.main.WorldToViewportPoint(grid[x, y].worldPos).y), Quaternion.identity, starCanvas.transform);
                 stars.Add(star);
             }
         }
@@ -106,22 +108,12 @@ public class StarGrid : MonoBehaviour
     }
 
     void Update(){
-        gridComponent.transform.position = new Vector3(starPlane.transform.position.x - totalGridWorldSize.y/2, starPlane.transform.position.y - totalGridWorldSize.x/2, 0f);
-        //gridComponent.transform.position = starPlane.transform.position;
+        gridComponent.transform.position = new Vector2(starPlane.transform.position.x - totalGridWorldSize.y/2, starPlane.transform.position.y - totalGridWorldSize.x/2);
 
         for(int i = 0; i < stars.Count; i++){
             Star star = grid[(int)(i / gridDimensions.y), i % (int)gridDimensions.y];
             star.updatePosition();
-            ((GameObject)stars[i]).transform.position = star.worldPosOffset;
-            if(star.lastSelected){
-                ((GameObject)stars[i]).GetComponent<SpriteRenderer>().color = Color.red;
-            }
-            else if(star.selected){
-                ((GameObject)stars[i]).GetComponent<SpriteRenderer>().color = Color.yellow;
-            }
-            else{
-                ((GameObject)stars[i]).GetComponent<SpriteRenderer>().color = Color.white;
-            }
+            ((Image)stars[i]).transform.position = new Vector2(Camera.main.WorldToScreenPoint(star.worldPosOffset).x, Camera.main.WorldToScreenPoint(star.worldPosOffset).y);
         }
     }
 }

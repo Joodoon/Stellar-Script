@@ -6,6 +6,7 @@ public class PlayerInputHandler : MonoBehaviour
 {
     public Vector2Int movementInput;
     public bool jumpInput;
+    public bool castInput;
 
     [SerializeField]
     private float inputHoldTime = 0.1f;
@@ -35,6 +36,17 @@ public class PlayerInputHandler : MonoBehaviour
         else
         {
             CheckJumpInputHoldTime();
+        }
+        #endregion
+
+        #region Cast Input
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            castInput = true;
+        }
+        else
+        {
+            castInput = false;
         }
         #endregion
 
