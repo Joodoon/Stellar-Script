@@ -36,7 +36,6 @@ public class StarGrid : MonoBehaviour
         stars = new ArrayList();
 
         createGrid();
-        drawGrid();
 
         totalGridWorldSize = new Vector2(gridDimensions.x * gridComponent.cellSize.x, gridDimensions.y * gridComponent.cellSize.y * .75f);
     }
@@ -46,15 +45,8 @@ public class StarGrid : MonoBehaviour
         for(int x = 0; x < gridDimensions.x; x++){
             for(int y = 0; y < gridDimensions.y; y++){
                 grid[x, y] = new Star(new Vector2(x, y));
-            }
-        }
-    }
-
-    void drawGrid(){
-        for(int x = 0; x < gridDimensions.x; x++){
-            for(int y = 0; y < gridDimensions.y; y++){
-                Image star = Instantiate(starPrefab, new Vector2(Camera.main.WorldToViewportPoint(grid[x, y].worldPos).x, Camera.main.WorldToViewportPoint(grid[x, y].worldPos).y), Quaternion.identity, starCanvas.transform);
-                stars.Add(star);
+                grid[x, y].image = Instantiate(starPrefab, new Vector2(Camera.main.WorldToViewportPoint(grid[x, y].worldPos).x, Camera.main.WorldToViewportPoint(grid[x, y].worldPos).y), Quaternion.identity, starCanvas.transform);
+                stars.Add(grid[x, y].image);
             }
         }
     }
@@ -65,7 +57,8 @@ public class StarGrid : MonoBehaviour
             new Self(),
             new Up(),
             new Right(),
-            new Force()
+            new Force(),
+            new Delay()
         };
     }
 

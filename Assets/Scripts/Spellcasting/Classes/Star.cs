@@ -1,9 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Star
 {
+    public static bool isCasting = false;
     public static Vector2 gridDimensions;
     public static Vector2 gridPosition;
 
@@ -20,6 +22,8 @@ public class Star
 
     public Vector2 roamTarget;
     private float t;
+
+    public Image image;
 
     public Star(Vector2 gridPos){
         arrayPos = gridPos;
@@ -39,5 +43,26 @@ public class Star
         t = Mathf.Sin(Time.unscaledTime);
         // slowly lerp the star's worldpos to the roam target
         worldPosOffset = Vector2.LerpUnclamped(worldPos, worldPos + roamTarget * 1.5f, t);
+
+        updateColor();
+    }
+
+    public void updateColor(){
+        if(isCasting){
+            if(selected){
+                image.color = new Color(image.color.r, image.color.g, image.color.b, 1);
+            }
+            else{
+                image.color = new Color(image.color.r, image.color.g, image.color.b, 0.5f);
+            }
+        }
+        else{
+            if(selected){
+                image.color = new Color(image.color.r, image.color.g, image.color.b, 1);
+            }
+            else{
+                image.color = new Color(image.color.r, image.color.g, image.color.b, 0);
+            }
+        }
     }
 }

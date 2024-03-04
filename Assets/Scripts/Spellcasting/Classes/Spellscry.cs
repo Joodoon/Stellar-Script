@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class Spellscry
 {
-    public GameObject obj;
+    public GameObject[] obj;
     public Vector2? vector;
 
-    public Spellscry(GameObject obj)
+    public Spellscry(GameObject[] obj)
     {
         this.obj = obj;
         this.vector = null;
@@ -17,5 +17,11 @@ public class Spellscry
     {
         this.obj = null;
         this.vector = vector;
+    }
+
+    public Spellscry()
+    {
+        this.obj = null;
+        this.vector = null;
     }
 }

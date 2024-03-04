@@ -8,11 +8,14 @@ public class DrawnGlyph
     public List<Star> stars;
     public List<Direction> directions;
     public LineRenderer lineRenderer;
+    public GameObject lineRendererGameobject;
 
     public DrawnGlyph()
     {
         stars = new List<Star>();
-        lineRenderer = new GameObject("Line Renderer").AddComponent<LineRenderer>();
+        lineRendererGameobject = new GameObject("Line Renderer");
+        lineRendererGameobject.layer = 9;
+        lineRenderer = lineRendererGameobject.AddComponent<LineRenderer>();
         lineRenderer.startWidth = 0.1f;
         lineRenderer.endWidth = 0.1f;
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));

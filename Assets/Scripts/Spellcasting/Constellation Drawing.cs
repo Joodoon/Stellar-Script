@@ -38,18 +38,25 @@ public class ConstellationDrawing : MonoBehaviour
             if (Input.GetMouseButton(0) && IsWithinGridBounds(mousePos)) {
                 Star star = starGrid.GetStarAtPosition(mousePos);
 
-                if(stars.Count == 0){
+                if(stars.Count == 0 && star != null && !star.selected){
                     currentGlyph = new DrawnGlyph();
                     drawnConstellations.Add(currentGlyph);
                 }
 
                 if (star != null) {
-                    if (!star.selected && (stars.Count == 0 || (star != stars[stars.Count - 1] && (starGrid.GetDistBetweenStars(star, stars[stars.Count - 1]).x <= 1 && starGrid.GetDistBetweenStars(star, stars[stars.Count - 1]).y <= 1)))) {
+                    if (!star.selected && 
+                    (stars.Count == 0 || 
+                    (star != stars[stars.Count - 1] && starGrid.GetDistBetweenStars(star, stars[stars.Count - 1]).x <= 1 && starGrid.GetDistBetweenStars(star, stars[stars.Count - 1]).y <= 1))) {
                         AddStarToConstellation(star);
                     }
-                    else if (star.lastSelected && stars.Count >= 1) {
+                    // FUCK this line of code 
+                    else if(stars.Count > 0 && stars[stars.Count - 1].lastDirection != starGrid.indexToPattern(stars[stars.Count - 1].arrayPos, star.arrayPos) && stars[stars.Count - 1].lastDirection != getOpposite(starGrid.indexToPattern(stars[stars.Count - 1].arrayPos, star.arrayPos)) && star != stars[stars.Count - 1] && starGrid.GetDistBetweenStars(star, stars[stars.Count - 1]).x <= 1 && starGrid.GetDistBetweenStars(star, stars[stars.Count - 1]).y <= 1 && !star.lastSelected){
+                        AddStarToConstellation(star);
+                    }
+                    else if(star.lastSelected && stars.Count >= 1){
                         RemoveStarFromConstellation(star);
                     }
+                    else{}
                 }
             }
 
@@ -60,6 +67,26 @@ public class ConstellationDrawing : MonoBehaviour
             }
         }
     }
+
+    private Direction getOpposite(Direction dir){
+        switch(dir){
+            case Direction.Up:
+                return Direction.Down;
+            case Direction.Down:
+                return Direction.Up;
+            case Direction.RightUp:
+                return Direction.LeftDown;
+            case Direction.RightDown:
+                return Direction.LeftUp;
+            case Direction.LeftUp:
+                return Direction.RightDown;
+            case Direction.LeftDown:
+                return Direction.RightUp;
+            default:
+                return Direction.NullDir;
+        }
+    }
+
     private Vector2 GetMouseGridPosition() {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity)) {
@@ -81,7 +108,12 @@ public class ConstellationDrawing : MonoBehaviour
         if (stars.Count > 1) {
             stars[stars.Count - 1].lastSelected = true;
             stars[stars.Count - 2].lastSelected = false;
-            star.lastDirection = starGrid.indexToPattern(stars[stars.Count - 1].arrayPos, star.arrayPos);
+            stars[stars.Count - 1].lastDirection = starGrid.indexToPattern(stars[stars.Count - 1].arrayPos, star.arrayPos);
+            //Debug.Log(stars[stars.Count - 1].lastDirection);
+        } else if (stars.Count == 1) {
+            stars[0].lastSelected = true;
+            stars[0].lastDirection = starGrid.indexToPattern(stars[0].arrayPos, star.arrayPos);
+            //Debug.Log(stars[0].lastDirection);
         }
 
         stars.Add(star);
@@ -90,9 +122,22 @@ public class ConstellationDrawing : MonoBehaviour
 
     private void RemoveStarFromConstellation(Star star) {
         if(stars.Count > 1) {
-            star.selected = false;
-            stars[stars.Count - 1].selected = false;
+            // get number of occurences of previous star
+            int prevCount = 0;
+            foreach (Star s in stars) {
+                if (s == stars[stars.Count - 1]) {
+                    prevCount++;
+                }
+            }
+
+            if(prevCount <= 1){
+                star.selected = false;
+                stars[stars.Count - 1].selected = false;
+            }
+
+            
             stars[stars.Count - 1].lastSelected = false;
+            stars[stars.Count - 1].lastDirection = Direction.NullDir;
             stars.RemoveAt(stars.Count - 1);
             stars[stars.Count - 1].lastSelected = true;
 
@@ -128,13 +173,12 @@ public class ConstellationDrawing : MonoBehaviour
                     for (int i = 0; i < constellation.pattern.Count; i++) {
                         if ((Direction)constellation.pattern[i] != directions[i]) {
                             valid = false;
-                            break;
                         }
                     }
                     if (valid) {
                         validConstellationFound = true;
                         constellation.Scry();
-                        spellStack.constellations.Add(constellation);
+                        spellStack.constellations.Add(constellation.copy());
                         textMeshPro.text = spellStack.constellations.ToCommaSeparatedString();
                         break;
                     }
@@ -144,13 +188,21 @@ public class ConstellationDrawing : MonoBehaviour
             if (!validConstellationFound) {
                 currentGlyph.stars.Clear();
                 currentGlyph.updateLine();
+                Destroy(currentGlyph.lineRendererGameobject);
                 drawnConstellations.Remove(currentGlyph);
+
+                // iterate over grid nested array
+                foreach (Star star in stars) {
+                    star.selected = false;
+                    star.lastSelected = false;
+                }
             }
 
             foreach (Star star in stars)
             {
-                star.selected = false;
+                //star.selected = false;
                 star.lastSelected = false;
+                star.lastDirection = Direction.NullDir;
             }
 
             stars.Clear();

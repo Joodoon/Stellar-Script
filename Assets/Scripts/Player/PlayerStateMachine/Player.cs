@@ -74,16 +74,11 @@ public class Player : MonoBehaviour
 
         if(isCasting){
             Time.timeScale = 0.1f;
-
-            foreach(Image star in StarGrid.stars){
-                star.color = new Color(star.color.r, star.color.g, star.color.b, 1f);
-            }
+            Star.isCasting = true;
         }
         else{
             Time.timeScale = 1f;
-            foreach(Image star in StarGrid.stars){
-                star.color = new Color(star.color.r, star.color.g, star.color.b, 0f);
-            }
+            Star.isCasting = false;
         }
     }
 
