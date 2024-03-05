@@ -55,10 +55,19 @@ public class StarGrid : MonoBehaviour
         constellationPatterns = new ArrayList
         {
             new Self(),
+            new Mouse(),
             new Up(),
+            new Down(),
             new Right(),
+            new Left(),
+            new Position(),
             new Force(),
-            new Delay()
+            new Delay(),
+            new Nearest(),
+            new Burst(),
+            new Scale(),
+            new Double(),
+            new Half()
         };
     }
 

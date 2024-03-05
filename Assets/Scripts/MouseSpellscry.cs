@@ -12,4 +12,11 @@ public class MouseSpellscry : MonoBehaviour
 
         //Cursor.SetCursor(cursorTexture, origin, CursorMode.Auto);
     }
+
+    void Update(){
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity)) {
+            transform.position = hit.point;
+        }
+    }
 }

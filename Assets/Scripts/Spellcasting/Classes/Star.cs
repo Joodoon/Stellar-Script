@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class Star
 {
     public static bool isCasting = false;
+    public bool isTelescope = false;
     public static Vector2 gridDimensions;
     public static Vector2 gridPosition;
 
@@ -48,21 +49,26 @@ public class Star
     }
 
     public void updateColor(){
-        if(isCasting){
-            if(selected){
-                image.color = new Color(image.color.r, image.color.g, image.color.b, 1);
+        if(isTelescope == false){
+            if(isCasting){
+                if(selected){
+                    image.color = new Color(image.color.r, image.color.g, image.color.b, 1);
+                }
+                else{
+                    image.color = new Color(image.color.r, image.color.g, image.color.b, 0.5f);
+                }
             }
             else{
-                image.color = new Color(image.color.r, image.color.g, image.color.b, 0.5f);
+                if(selected){
+                    image.color = new Color(image.color.r, image.color.g, image.color.b, 1);
+                }
+                else{
+                    image.color = new Color(image.color.r, image.color.g, image.color.b, 0);
+                }
             }
         }
         else{
-            if(selected){
-                image.color = new Color(image.color.r, image.color.g, image.color.b, 1);
-            }
-            else{
-                image.color = new Color(image.color.r, image.color.g, image.color.b, 0);
-            }
+            image.color = new Color(image.color.r, image.color.g, image.color.b, 1);
         }
     }
 }

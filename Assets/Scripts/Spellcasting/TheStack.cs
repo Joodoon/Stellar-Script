@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class TheStack
 {
-    ArrayList elements;
+    public ArrayList elements;
     public int Count;
 
     public TheStack(){
@@ -21,6 +21,10 @@ public class TheStack
         elements.RemoveAt(elements.Count - 1);
         Count--;
         return element;
+    }
+
+    public object Peek(){
+        return elements[elements.Count - 1];
     }
 
     public object getAt(int index){

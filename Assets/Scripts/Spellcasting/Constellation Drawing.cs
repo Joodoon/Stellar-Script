@@ -103,6 +103,16 @@ public class ConstellationDrawing : MonoBehaviour
     }
 
     private void AddStarToConstellation(Star star) {
+        // check if the star is selected but not in the current constellation
+        if (star.selected) {
+            foreach (Star s in stars) {
+                if (s == star) {
+                    break;
+                }
+                return;
+            }
+        }
+
         star.selected = true;
 
         if (stars.Count > 1) {
@@ -130,7 +140,7 @@ public class ConstellationDrawing : MonoBehaviour
                 }
             }
 
-            if(prevCount <= 1){
+            if(prevCount == 1){
                 star.selected = false;
                 stars[stars.Count - 1].selected = false;
             }
@@ -179,7 +189,7 @@ public class ConstellationDrawing : MonoBehaviour
                         validConstellationFound = true;
                         constellation.Scry();
                         spellStack.constellations.Add(constellation.copy());
-                        textMeshPro.text = spellStack.constellations.ToCommaSeparatedString();
+                        spellStack.updateText();
                         break;
                     }
                 }

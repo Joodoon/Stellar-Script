@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebdb14a86d4d6014194acbf91f4a2917, type: 3}
   m_Name: newPlayerData
   m_EditorClassIdentifier: 
-  movementVelocity: 15
+  movementVelocity: 30
   maxMoveSpeed: 20
   groundDrag: 5
-  jumpVelocity: 22
+  jumpVelocity: 30
   amountOfJumps: 1
   coyoteTime: 0.1
   airDrag: 1

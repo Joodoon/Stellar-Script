@@ -40,6 +40,15 @@ public class SpellStack : MonoBehaviour
         }
     }
 
+    public void updateText(){
+        textMeshPro.text = "";
+        foreach (Spellscry spellscry in Constellation.spellscryStack.elements)
+        {
+            textMeshPro.text += spellscry.text + "\n";
+        }
+
+    }
+
     IEnumerator castSpell()
     {
         foreach (Constellation constellation in constellations)
@@ -47,7 +56,7 @@ public class SpellStack : MonoBehaviour
             yield return StartCoroutine(constellation.Cast());
         }
         constellations.Clear();
-
+        Constellation.spellscryStack.elements.Clear();
         yield return null;
     }
 }

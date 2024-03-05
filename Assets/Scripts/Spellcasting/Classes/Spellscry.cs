@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Spellscry
 {
+    public string isEmpty;
+    public string text;
     public GameObject[] obj;
     public Vector2? vector;
 
